@@ -1,5 +1,6 @@
 import csv
 import random
+import numpy
 
 class Data :
     def __init__(self, fileName):
@@ -62,9 +63,9 @@ class Data :
             for indices in self.classIndices[c]:
                 for word in self.dataDictionary[indices][0]:
                     if (word, c) in wordModel:
-                        wordModel[word, c] = wordModel[word, c] + 5
+                        wordModel[word, c] = wordModel[word, c] + 1
                     else:
-                        wordModel[word, c] = 5
+                        wordModel[word, c] = 1
 
         return wordModel
 
@@ -80,9 +81,13 @@ class Data :
     def getDocProbability(self, listofWords, c):
         p = 1.0
         for word in listofWords:
-            p = p * self.getLikelihood(word, c)
+            p = p + numpy.log(self.getLikelihood(word, c))
 
-        return p * self.getClassPrior(c)
+        p = p + numpy.log(self.getClassPrior(c))
+
+
+        print numpy.exp(p)
+        return numpy.exp(p*4)
 
     def predict(self, doc):
         p = 0.0
@@ -109,7 +114,7 @@ class Data :
                     TP = TP + 1
                 elif pred == 'ham':
                     FN = FN + 1
-            elif pred == 'ham':
+            elif category == 'ham':
                 if pred == 'spam':
                     FP = FP + 1
                 elif pred == 'ham':
